@@ -1,6 +1,6 @@
 //
 //  NewRequestViewController.swift
-//  TwoCans
+//  Requests
 //
 //  Created by Marco Almeida on 1/7/17.
 //  Copyright © 2017 The Iron Yard. All rights reserved.
@@ -19,8 +19,6 @@ class NewRequestViewController: UIViewController, UITextFieldDelegate
     @IBOutlet weak var textRequest: UITextView?
     @IBOutlet weak var role: UILabel?
     @IBOutlet weak var sendButtonTapped: UIButton!
-    //    @IBOutlet weak var requestTextFieldBottomConstraint: NSLayoutConstraint!
-    
     
     var aRequest = [String: String]()
     var newRequestNameSegue = String()
@@ -39,7 +37,6 @@ class NewRequestViewController: UIViewController, UITextFieldDelegate
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         title = "New Request"
         
         configureDatabase()

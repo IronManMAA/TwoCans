@@ -16,9 +16,9 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var ref: FIRDatabaseReference!
     fileprivate var refHandle: FIRDatabaseHandle!
-    var messages = Array<FIRDataSnapshot>()
-    var messagesC = Array<FIRDataSnapshot>()
-    var messagesP = Array<FIRDataSnapshot>()
+//    var messages = Array<FIRDataSnapshot>()
+    var requestsC = Array<FIRDataSnapshot>()
+    var requestsP = Array<FIRDataSnapshot>()
     let attrs = [
         NSForegroundColorAttributeName: UIColor.orange,
        NSFontAttributeName: UIFont(name: "Georgia-Bold", size: 24)!
@@ -71,11 +71,11 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
     {
             if section == 0
             {
-                return messagesC.count
+                return requestsC.count
             }
             else
             {
-                return messagesP.count
+                return requestsP.count
             }
     }
   
@@ -83,9 +83,9 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if section == 0
         {
-            return "Pending Requests \n "
+            return "Completed Requests \n "
         } else {
-            return "Completed Requests"
+            return "Pending Requests"
         }
     }
     
@@ -100,36 +100,28 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChatCell", for: indexPath)
-
+        
         if indexPath.section == 0
         {
-        let messageSnapshot = messagesC[indexPath.row]
-        let message = messageSnapshot.value as! Dictionary<String, String>
-
-            let nameT = message["name"] ?? ""
-            //let textT = message["text"] ?? ""
-            let titleT  = message["title"] ?? ""
-            //let statusT = message["status"] ?? "Pending"
-            let roleT  = message["role"] ?? ""
+            let requestSnapshot = requestsC[indexPath.row]
+            let aRequest = requestSnapshot.value as! Dictionary<String, String>
+            let nameT = aRequest["name"] ?? ""
+            let titleT  = aRequest["title"] ?? ""
+            let roleT  = aRequest["role"] ?? ""
             cell.textLabel?.text = nameT + " (\(roleT))"
             cell.detailTextLabel?.text = "Title: " + titleT
           }
         if indexPath.section == 1
         {
-            let messageSnapshot = messagesC[indexPath.row]
-            let message = messageSnapshot.value as! Dictionary<String, String>
-            
-            let nameT = message["name"] ?? ""
-            //let textT = message["text"] ?? ""
-            let titleT  = message["title"] ?? ""
-            //let statusT = message["status"] ?? "Pending"
-            let roleT  = message["role"] ?? ""
+            let requestSnapshot = requestsP[indexPath.row]
+            let aRequest = requestSnapshot.value as! Dictionary<String, String>
+            let nameT = aRequest["name"] ?? ""
+            let titleT  = aRequest["title"] ?? ""
+            let roleT  = aRequest["role"] ?? ""
             cell.textLabel?.text = nameT + " (\(roleT))"
             cell.detailTextLabel?.text = "Title: " + titleT
         }
-
         return cell
     }
     
@@ -141,29 +133,20 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
         ref = FIRDatabase.database().reference()
         // Listen for new messages in the Firebase database
         refHandle = ref.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
-            self.messages.append(snapshot)
-
-            let ii = self.messages.count
-            var i = 0
-            while i < ii {
-                if self.messages.status == "Completed" {
-                   self.messagesC.append(snapshot)
-                    let indexPath = IndexPath(row: self.messages.count-1, section: 0)
-                    self.tableView.insertRows(at: [indexPath], with: .automatic)
-                    self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
-
-                } else {
-                    self.messagesP.append(snapshot)
-                    let indexPath = IndexPath(row: self.messages.count-1, section: 1)
-                    self.tableView.insertRows(at: [indexPath], with: .automatic)
-                    self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
-                }
-                i = i + 1
+            let aRequest = snapshot.value as! Dictionary<String, String>
+            if aRequest["status"] == "Completed" {
+                self.requestsC.append(snapshot)
+                //  let indexPath = IndexPath(row: self.messagesC.count-1, section: 0)
+                let indexPath = IndexPath(row: self.requestsC.count-1, section: 0)
+                self.tableView.insertRows(at: [indexPath], with: .automatic)
+                self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            } else {
+                self.requestsP.append(snapshot)
+                let indexPath = IndexPath(row: self.requestsP.count-1, section: 1)
+                self.tableView.insertRows(at: [indexPath], with: .automatic)
+                self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
             }
         })
-        
-//        print(" Count is: \(self.messages.count)")
-        
     }
     
     // MARK: - Action handlers
@@ -190,15 +173,6 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
          self.performSegue(withIdentifier: "ShowDetailRequest", sender: self)
     }
     
-
-//    @IBAction func sendButtonTapped(_ sender: UIButton)
-//    {
-//        sendMessage()
-//    }
-    
-    // MARK: - Helper functions
-    
-    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?)
     {
@@ -208,10 +182,15 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
             let destinationVC = segue.destination as! DetailViewController
             if let selectedIndexPath = tableView.indexPathForSelectedRow
             {
-
-                let aRequestSnapshot = messages[selectedIndexPath.row]
-                let aRequest = aRequestSnapshot.value as! Dictionary<String, String>
-                destinationVC.aRequest = aRequest
+                if selectedIndexPath.section==0 {
+                   let aRequestSnapshot = requestsC[selectedIndexPath.row]
+                   let aRequest = aRequestSnapshot.value as! Dictionary<String, String>
+                   destinationVC.aRequest = aRequest
+                 } else {
+                   let aRequestSnapshot = requestsP[selectedIndexPath.row]
+                   let aRequest = aRequestSnapshot.value as! Dictionary<String, String>
+                   destinationVC.aRequest = aRequest
+                 }
             }
         }
         if segue.identifier == "ShowDetailNEWRequest"
@@ -220,16 +199,14 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
             let nameNew = AppState.sharedInstance.displayName
             destinationVC.newRequestNameSegue = nameNew!
             var roleNew = "student"
+//***** Poor Man's Role checker
             if nameNew == "Ben's E-mail" {  roleNew = "teacher" } else { roleNew = "student" }
             destinationVC.roleNewSegue = roleNew
+//********************
         }
 
     }
 
-
-//    @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
-//        // name this function at will.
-//    }
 
 } // End of Class
 

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  TwoCans
+//  Requests
 //
 //  Created by Marco Almeida on 1/7/17.
 //  Copyright © 2017 The Iron Yard. All rights reserved.
@@ -76,40 +76,10 @@ class DetailViewController: UIViewController, UITextFieldDelegate
         ref = FIRDatabase.database().reference()
         // Listen for new messages in the Firebase database
         refHandle = ref.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
-            self.messages.append(snapshot)
-//            let indexPath = IndexPath(row: self.messages.count-1, section: 0)
-//            self.tableView.insertRows(at: [indexPath], with: .automatic)
-//            self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        self.messages.append(snapshot)
         })
     }
-//
-//    // MARK: - Action handlers
-//    
-//    @IBAction func signOutTapped(_ sender: UIBarButtonItem)
-//    {
-//        let firebaseAuth = FIRAuth.auth()
-//        do
-//        {
-//            try firebaseAuth?.signOut()
-//            AppState.sharedInstance.signedIn = false
-//            AppState.sharedInstance.displayName = nil
-//            print("Sign out successful")
-//            performSegue(withIdentifier: "ModalLoginViewSegue", sender: self)
-//            
-//        } catch let signOutError as NSError
-//        {
-//            print("Error signing out: \(signOutError)")
-//        }
-//    }
-//    
-//    @IBAction func hideKeyboard(_ sender: UIButton)
-//    {
-//        if (textRequest?.isFirstResponder)!
-//        {
-//            textRequest?.resignFirstResponder()
-//        }
-//    }
-//
+
     @IBAction func sendButtonTapped(_ sender: UIButton)
     {
         sendMessage()
@@ -129,16 +99,15 @@ class DetailViewController: UIViewController, UITextFieldDelegate
                     statusReq = "Pending"
                 }
                 var roleReq = self.role?.text
-                
-                if username == "Ben's E-mail" { roleReq = "teacher"}
 
-// ******* poor mans' error handling
+// ******* Poor mans' role check and error handling
+                if username == "Ben's E-mail" { roleReq = "teacher"}
                 if requestText == "" { requestText = "No request" }
                 if username == "" { username = "No name" }
                 if titleReq == "" || titleReq == nil  { titleReq = "No Title" }
                 if statusReq == "" { statusReq = "No status" }
                 if roleReq == "" || roleReq == nil  { roleReq = "No role" }
-// *******
+// **********************
 
                 let requestData = ["text": requestText, "name": username, "title": titleReq, "status": statusReq, "role": roleReq]
                 ref.child("messages").childByAutoId().setValue(requestData)
