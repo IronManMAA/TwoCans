@@ -19,4 +19,5 @@ class AppState
     var status: String?
     var role: String?
     var text: String?
+    var reqKey: String?
 }

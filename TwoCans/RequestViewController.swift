@@ -11,6 +11,20 @@ import Firebase
 
 class RequestViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate
 {
+    
+//    struct Request
+//    {
+//        var reqKey: String?
+//        var name: String?
+//        var title: String?
+//        var status: String?
+//        var role: String?
+//        var text: String?
+//    }
+//    var requests = [Request]()    // initialize an empty Array
+//    var requestsC = [Request]()    // initialize an empty Array
+//    var requestsP = [Request]()    // initialize an empty Array
+    
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -106,9 +120,11 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
         {
             let requestSnapshot = requestsC[indexPath.row]
             let aRequest = requestSnapshot.value as! Dictionary<String, String>
+//KEY            let keyreq = requestSnapshot.key
             let nameT = aRequest["name"] ?? ""
             let titleT  = aRequest["title"] ?? ""
             let roleT  = aRequest["role"] ?? ""
+//KEY            cell.textLabel?.text = nameT + " (\(roleT))  + keyreq"
             cell.textLabel?.text = nameT + " (\(roleT))"
             cell.detailTextLabel?.text = "Title: " + titleT
           }
@@ -134,6 +150,10 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
         // Listen for new messages in the Firebase database
         refHandle = ref.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
             let aRequest = snapshot.value as! Dictionary<String, String>
+            
+//            reqKey?.key = snapshot.key
+//           reqKey = snapshot.key
+            
             if aRequest["status"] == "Completed" {
                 self.requestsC.append(snapshot)
                 //  let indexPath = IndexPath(row: self.messagesC.count-1, section: 0)
@@ -186,21 +206,26 @@ class RequestViewController: UIViewController, UITableViewDataSource, UITableVie
                    let aRequestSnapshot = requestsC[selectedIndexPath.row]
                    let aRequest = aRequestSnapshot.value as! Dictionary<String, String>
                    destinationVC.aRequest = aRequest
+                   destinationVC.aKey = aRequestSnapshot.key
                  } else {
                    let aRequestSnapshot = requestsP[selectedIndexPath.row]
                    let aRequest = aRequestSnapshot.value as! Dictionary<String, String>
                    destinationVC.aRequest = aRequest
-                 }
+                   destinationVC.aKey = aRequestSnapshot.key
+                }
             }
         }
         if segue.identifier == "ShowDetailNEWRequest"
         {
-            let destinationVC = segue.destination as! NewRequestViewController
+            let navVC = segue.destination as! UINavigationController
+            // get the Navegation controller handle to request the NewRuestViewController
+            // since there is only one related to that we have [0]
+            let destinationVC = navVC.viewControllers[0] as! NewRequestViewController
             let nameNew = AppState.sharedInstance.displayName
             destinationVC.newRequestNameSegue = nameNew!
             var roleNew = "student"
 //***** Poor Man's Role checker
-            if nameNew == "Ben's E-mail" {  roleNew = "teacher" } else { roleNew = "student" }
+            if nameNew == "Ben" {  roleNew = "teacher" } else { roleNew = "student" }
             destinationVC.roleNewSegue = roleNew
 //********************
         }

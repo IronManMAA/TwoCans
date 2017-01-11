@@ -19,13 +19,17 @@ class DetailViewController: UIViewController, UITextFieldDelegate
     @IBOutlet weak var textRequest: UITextView?
     @IBOutlet weak var role: UILabel?
     @IBOutlet weak var sendButtonTapped: UIButton!
-    
+
+//    var aRequest: FIRDataSnapshot?
+
     var aRequest = [String: String]()
 
     var ref: FIRDatabaseReference!
     fileprivate var refHandle: FIRDatabaseHandle!
     var messages = Array<FIRDataSnapshot>()
-
+    var aKey = String()
+    var requestKey = String()
+        
     let attrs = [
         NSForegroundColorAttributeName: UIColor.orange,
         NSFontAttributeName: UIFont(name: "Georgia-Bold", size: 24)!
@@ -33,10 +37,12 @@ class DetailViewController: UIViewController, UITextFieldDelegate
     
     override func viewWillAppear(_ animated: Bool){
         let request = self.aRequest
+        requestKey = self.aKey
         titleR?.text = request["title"]
         name?.text = request["name"]
         textRequest?.text = request["text"]
         role?.text = request["role"]
+        
         if (request["status"] == "Completed") {
             status?.isOn = true
         } else {
@@ -76,16 +82,16 @@ class DetailViewController: UIViewController, UITextFieldDelegate
         ref = FIRDatabase.database().reference()
         // Listen for new messages in the Firebase database
         refHandle = ref.child("messages").observe(.childAdded, with: { (snapshot) -> Void in
-        self.messages.append(snapshot)
+//        self.messages.append(snapshot)
         })
     }
 
     @IBAction func sendButtonTapped(_ sender: UIButton)
     {
-        sendMessage()
+        sendUpdateMessage()
     }
 
-    func sendMessage()
+    func sendUpdateMessage()
     {
         if var requestText = textRequest?.text
         {
@@ -101,7 +107,7 @@ class DetailViewController: UIViewController, UITextFieldDelegate
                 var roleReq = self.role?.text
 
 // ******* Poor mans' role check and error handling
-                if username == "Ben's E-mail" { roleReq = "teacher"}
+                if username == "Ben" { roleReq = "teacher"}
                 if requestText == "" { requestText = "No request" }
                 if username == "" { username = "No name" }
                 if titleReq == "" || titleReq == nil  { titleReq = "No Title" }
@@ -110,8 +116,13 @@ class DetailViewController: UIViewController, UITextFieldDelegate
 // **********************
 
                 let requestData = ["text": requestText, "name": username, "title": titleReq, "status": statusReq, "role": roleReq]
-                ref.child("messages").childByAutoId().setValue(requestData)
-              
+                
+//                ref.child("messages").childByAutoId().setValue(requestData)
+                // creates a new DB entry and generate an outo key
+                ref.child("messages").child(requestKey).setValue(requestData)
+                // this will update a record of the given key.
+
+                
             }
         }
     }

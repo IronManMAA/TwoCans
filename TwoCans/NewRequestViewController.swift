@@ -19,6 +19,7 @@ class NewRequestViewController: UIViewController, UITextFieldDelegate
     @IBOutlet weak var textRequest: UITextView?
     @IBOutlet weak var role: UILabel?
     @IBOutlet weak var sendButtonTapped: UIButton!
+    @IBOutlet weak var cancelB: UIButton!
     
     var aRequest = [String: String]()
     var newRequestNameSegue = String()
@@ -71,6 +72,11 @@ class NewRequestViewController: UIViewController, UITextFieldDelegate
         dismiss(animated: true, completion: nil)
     }
 
+    @IBAction func cancelB(_ sender: UIButton)
+    {
+        dismiss(animated: true, completion: nil)
+    }
+    
     
     func sendMessage()
     {
@@ -87,7 +93,7 @@ class NewRequestViewController: UIViewController, UITextFieldDelegate
                 }
                 var roleReq = self.role?.text
                 
-                if username == "Ben's E-mail" { roleReq = "teacher"}
+                if username == "Ben" { roleReq = "teacher"}
                 
             // ******* poor mans' error handling
                 if requestText == "" { requestText = "No request" }
@@ -98,8 +104,9 @@ class NewRequestViewController: UIViewController, UITextFieldDelegate
             // *******
                 
                 let requestData = ["text": requestText, "name": username, "title": titleReq, "status": statusReq, "role": roleReq]
-                //print(requestData)
                 ref.child("messages").childByAutoId().setValue(requestData)
+                // childByAutoId will create a new child and assign the key automatically
+                
             }
         }
     }
